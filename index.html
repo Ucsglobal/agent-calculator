@@ -79,6 +79,14 @@
             margin-bottom: 30px;
         }
         
+        .sales-mix-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #3498db;
+        }
+        
         .input-group {
             background: #f8f9fa;
             padding: 20px;
@@ -241,18 +249,43 @@
             </div>
             
             <div class="input-group">
-                <label for="productPrice">Product Price</label>
-                <select id="productPrice">
-                    <option value="20" selected>$20 - Basic</option>
-                    <option value="50">$50 - Enhanced</option>
-                    <option value="100">$100 - Premium</option>
-                </select>
-            </div>
-            
-            <div class="input-group">
                 <label for="companyProfit">Company Profit %</label>
                 <input type="number" id="companyProfit" value="50" min="0" max="100" step="1">
                 <div class="helper-text">% of package price</div>
+            </div>
+            
+            <div class="input-group">
+                <label>Quick Mix Presets</label>
+                <button class="preset-btn" onclick="setSalesMix(10, 0, 0)" style="width: 100%; margin-bottom: 5px; font-size: 0.8em;">All $20</button>
+                <button class="preset-btn" onclick="setSalesMix(0, 10, 0)" style="width: 100%; margin-bottom: 5px; font-size: 0.8em;">All $50</button>
+                <button class="preset-btn" onclick="setSalesMix(3, 4, 3)" style="width: 100%; font-size: 0.8em;">Mixed</button>
+            </div>
+        </div>
+        
+        <div class="sales-mix-section">
+            <h3 style="text-align: center; color: #2c3e50; margin-bottom: 20px; font-size: 1.3em;">📦 Daily Sales Mix per Agent</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div class="input-group" style="border-left-color: #e74c3c;">
+                    <label for="sales20">$20 Package Sales</label>
+                    <input type="number" id="sales20" value="3" min="0" max="50" step="1">
+                    <div class="helper-text">Agent gets $5 each, Manager gets $0.30</div>
+                </div>
+                
+                <div class="input-group" style="border-left-color: #f39c12;">
+                    <label for="sales50">$50 Package Sales</label>
+                    <input type="number" id="sales50" value="4" min="0" max="50" step="1">
+                    <div class="helper-text">Agent gets $10 each, Manager gets $0.85</div>
+                </div>
+                
+                <div class="input-group" style="border-left-color: #27ae60;">
+                    <label for="sales100">$100 Package Sales</label>
+                    <input type="number" id="sales100" value="3" min="0" max="50" step="1">
+                    <div class="helper-text">Agent gets $20 each, Manager gets $2.00</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                <strong>Total Sales per Agent per Day: <span id="totalSalesCheck">10</span></strong>
+                <span id="salesMismatch" style="color: #e74c3c; margin-left: 10px; display: none;">⚠️ Mix doesn't match total sales!</span>
             </div>
         </div>
         
@@ -267,7 +300,7 @@
                 
                 <div class="result-card">
                     <span class="result-value" id="profitPerSale">$10.00</span>
-                    <span class="result-label">Company Profit Per Sale</span>
+                    <span class="result-label">Avg Company Profit Per Sale</span>
                 </div>
                 
                 <div class="result-card agent-card">
@@ -311,45 +344,65 @@
         function calculate() {
             var agents = Number(document.getElementById('agents').value) || 0;
             var salesPerDay = Number(document.getElementById('salesPerDay').value) || 0;
-            var productPrice = Number(document.getElementById('productPrice').value) || 0;
             var companyProfitPercent = Number(document.getElementById('companyProfit').value) || 0;
             
-            // Agent commission per sale
-            var agentCommission = 0;
-            if (productPrice == 20) {
-                agentCommission = 5;
-            } else if (productPrice == 50) {
-                agentCommission = 10;
-            } else if (productPrice == 100) {
-                agentCommission = 20;
+            // Get sales mix
+            var sales20 = Number(document.getElementById('sales20').value) || 0;
+            var sales50 = Number(document.getElementById('sales50').value) || 0;
+            var sales100 = Number(document.getElementById('sales100').value) || 0;
+            
+            // Update total sales check
+            var totalMixSales = sales20 + sales50 + sales100;
+            document.getElementById('totalSalesCheck').innerHTML = totalMixSales;
+            
+            // Show/hide mismatch warning
+            var mismatchElement = document.getElementById('salesMismatch');
+            if (totalMixSales !== salesPerDay) {
+                mismatchElement.style.display = 'inline';
+            } else {
+                mismatchElement.style.display = 'none';
             }
             
-            // Manager commission per sale
-            var managerCommission = 0;
-            if (productPrice == 20) {
-                managerCommission = 0.30;
-            } else if (productPrice == 50) {
-                managerCommission = 0.85;
-            } else if (productPrice == 100) {
-                managerCommission = 2.00;
-            }
+            // Commission structures
+            var agentCommissions = { 20: 5, 50: 10, 100: 20 };
+            var managerCommissions = { 20: 0.30, 50: 0.85, 100: 2.00 };
+            var packagePrices = { 20: 20, 50: 50, 100: 100 };
             
-            var companyProfitPerSale = (productPrice * companyProfitPercent) / 100;
+            // Calculate per-agent daily earnings
+            var agentDailyEarning = (sales20 * agentCommissions[20]) + 
+                                   (sales50 * agentCommissions[50]) + 
+                                   (sales100 * agentCommissions[100]);
             
-            // Calculate totals
-            var totalWeeklySales = agents * salesPerDay * 5;
-            var dailyCompanyProfit = agents * salesPerDay * companyProfitPerSale;
+            // Calculate daily revenue and profit per agent
+            var dailyRevenuePerAgent = (sales20 * packagePrices[20]) + 
+                                      (sales50 * packagePrices[50]) + 
+                                      (sales100 * packagePrices[100]);
+            
+            var dailyProfitPerAgent = (sales20 * packagePrices[20] * companyProfitPercent / 100) + 
+                                     (sales50 * packagePrices[50] * companyProfitPercent / 100) + 
+                                     (sales100 * packagePrices[100] * companyProfitPercent / 100);
+            
+            // Calculate weighted average profit per sale for display
+            var totalSalesPerAgent = sales20 + sales50 + sales100;
+            var avgProfitPerSale = totalSalesPerAgent > 0 ? dailyProfitPerAgent / totalSalesPerAgent : 0;
+            
+            // Calculate total company metrics
+            var totalWeeklySales = agents * totalSalesPerAgent * 5;
+            var dailyCompanyProfit = agents * dailyProfitPerAgent;
             var weeklyCompanyProfit = dailyCompanyProfit * 5;
             var monthlyCompanyProfit = dailyCompanyProfit * 22;
             var annualCompanyProfit = dailyCompanyProfit * 260;
             
             // Agent weekly earnings
-            var agentWeeklyEarning = salesPerDay * agentCommission * 5;
+            var agentWeeklyEarning = agentDailyEarning * 5;
             
-            // Manager calculations (each manager oversees 25 agents)
+            // Manager calculations
             var numberOfManagers = Math.ceil(agents / 25);
-            var totalWeeklySalesForManagers = totalWeeklySales;
-            var managerWeeklyEarning = (totalWeeklySalesForManagers * managerCommission) / numberOfManagers;
+            var dailyManagerCommissionPerAgent = (sales20 * managerCommissions[20]) + 
+                                                (sales50 * managerCommissions[50]) + 
+                                                (sales100 * managerCommissions[100]);
+            var totalDailyManagerCommissions = agents * dailyManagerCommissionPerAgent;
+            var managerWeeklyEarning = (totalDailyManagerCommissions * 5) / numberOfManagers;
             
             // Update display
             document.getElementById('dailyProfit').innerHTML = formatCurrency(dailyCompanyProfit);
@@ -357,7 +410,7 @@
             document.getElementById('monthlyProfit').innerHTML = formatCurrency(monthlyCompanyProfit);
             document.getElementById('annualProfit').innerHTML = formatCurrency(annualCompanyProfit);
             document.getElementById('totalSales').innerHTML = formatNumber(totalWeeklySales);
-            document.getElementById('profitPerSale').innerHTML = formatCurrency(companyProfitPerSale);
+            document.getElementById('profitPerSale').innerHTML = formatCurrency(avgProfitPerSale);
             document.getElementById('agentEarning').innerHTML = formatCurrency(agentWeeklyEarning);
             document.getElementById('managerEarning').innerHTML = formatCurrency(managerWeeklyEarning);
         }
@@ -386,29 +439,33 @@
             }
         }
         
+        function setSalesMix(sales20, sales50, sales100) {
+            document.getElementById('sales20').value = sales20;
+            document.getElementById('sales50').value = sales50;
+            document.getElementById('sales100').value = sales100;
+            
+            // Update total sales to match the mix
+            var totalMix = sales20 + sales50 + sales100;
+            document.getElementById('salesPerDay').value = totalMix;
+            
+            calculate();
+        }
+        
         function setPreset(agents, sales, price, profit) {
             document.getElementById('agents').value = agents;
             document.getElementById('salesPerDay').value = sales;
             document.getElementById('companyProfit').value = profit;
             
-            // Update dropdown by finding and selecting the correct option
-            var dropdown = document.getElementById('productPrice');
-            var options = dropdown.options;
-            
-            for (var i = 0; i < options.length; i++) {
-                if (options[i].value == price) {
-                    dropdown.selectedIndex = i;
-                    break;
-                }
-            }
-            
-            calculate();
+            // Set default mixed sales (3-4-3 pattern)
+            setSalesMix(3, 4, 3);
         }
         
         document.getElementById('agents').addEventListener('input', calculate);
         document.getElementById('salesPerDay').addEventListener('input', calculate);
-        document.getElementById('productPrice').addEventListener('change', calculate);
         document.getElementById('companyProfit').addEventListener('input', calculate);
+        document.getElementById('sales20').addEventListener('input', calculate);
+        document.getElementById('sales50').addEventListener('input', calculate);
+        document.getElementById('sales100').addEventListener('input', calculate);
         
         calculate();
     </script>
