@@ -171,6 +171,34 @@
             color: rgba(255,255,255,0.9);
         }
         
+        .manager-card {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border-left: 4px solid #a93226;
+        }
+        
+        .manager-card .result-value {
+            color: white;
+        }
+        
+        .manager-card .result-label {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .agent-card {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border-left: 4px solid #d68910;
+        }
+        
+        .agent-card .result-value {
+            color: white;
+        }
+        
+        .agent-card .result-label {
+            color: rgba(255,255,255,0.9);
+        }
+        
         .calculation-note {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -233,8 +261,8 @@
             
             <div class="results-grid">
                 <div class="result-card">
-                    <span class="result-value" id="totalSales">1K</span>
-                    <span class="result-label">Daily Sales Volume</span>
+                    <span class="result-value" id="totalSales">5K</span>
+                    <span class="result-label">Weekly Sales Volume</span>
                 </div>
                 
                 <div class="result-card">
@@ -242,14 +270,14 @@
                     <span class="result-label">Company Profit Per Sale</span>
                 </div>
                 
-                <div class="result-card">
-                    <span class="result-value" id="agentEarning">$50.00</span>
-                    <span class="result-label">Agent Daily Earning</span>
+                <div class="result-card agent-card">
+                    <span class="result-value" id="agentEarning">$250.00</span>
+                    <span class="result-label">Agent Weekly Earning</span>
                 </div>
                 
-                <div class="result-card" style="visibility: hidden;">
-                    <span class="result-value"></span>
-                    <span class="result-label"></span>
+                <div class="result-card manager-card">
+                    <span class="result-value" id="managerEarning">$375.00</span>
+                    <span class="result-label">Manager Weekly Earning</span>
                 </div>
                 
                 <div class="result-card">
@@ -274,7 +302,7 @@
             </div>
             
             <div class="calculation-note">
-                <strong>Note:</strong> Calculations assume 5-day working week, 22 working days per month, and 260 working days per year.
+                <strong>Note:</strong> Calculations assume 5-day working week, 22 working days per month, and 260 working days per year. Each manager oversees 25 agents.
             </div>
         </div>
     </div>
@@ -286,6 +314,7 @@
             var productPrice = Number(document.getElementById('productPrice').value) || 0;
             var companyProfitPercent = Number(document.getElementById('companyProfit').value) || 0;
             
+            // Agent commission per sale
             var agentCommission = 0;
             if (productPrice == 20) {
                 agentCommission = 5;
@@ -295,22 +324,42 @@
                 agentCommission = 20;
             }
             
+            // Manager commission per sale
+            var managerCommission = 0;
+            if (productPrice == 20) {
+                managerCommission = 0.30;
+            } else if (productPrice == 50) {
+                managerCommission = 0.85;
+            } else if (productPrice == 100) {
+                managerCommission = 2.00;
+            }
+            
             var companyProfitPerSale = (productPrice * companyProfitPercent) / 100;
             
+            // Calculate totals
+            var totalWeeklySales = agents * salesPerDay * 5;
             var dailyCompanyProfit = agents * salesPerDay * companyProfitPerSale;
             var weeklyCompanyProfit = dailyCompanyProfit * 5;
             var monthlyCompanyProfit = dailyCompanyProfit * 22;
             var annualCompanyProfit = dailyCompanyProfit * 260;
-            var totalDailySales = agents * salesPerDay;
-            var agentDailyEarning = salesPerDay * agentCommission;
             
+            // Agent weekly earnings
+            var agentWeeklyEarning = salesPerDay * agentCommission * 5;
+            
+            // Manager calculations (each manager oversees 25 agents)
+            var numberOfManagers = Math.ceil(agents / 25);
+            var totalWeeklySalesForManagers = totalWeeklySales;
+            var managerWeeklyEarning = (totalWeeklySalesForManagers * managerCommission) / numberOfManagers;
+            
+            // Update display
             document.getElementById('dailyProfit').innerHTML = formatCurrency(dailyCompanyProfit);
             document.getElementById('weeklyProfit').innerHTML = formatCurrency(weeklyCompanyProfit);
             document.getElementById('monthlyProfit').innerHTML = formatCurrency(monthlyCompanyProfit);
             document.getElementById('annualProfit').innerHTML = formatCurrency(annualCompanyProfit);
-            document.getElementById('totalSales').innerHTML = formatNumber(totalDailySales);
+            document.getElementById('totalSales').innerHTML = formatNumber(totalWeeklySales);
             document.getElementById('profitPerSale').innerHTML = formatCurrency(companyProfitPerSale);
-            document.getElementById('agentEarning').innerHTML = formatCurrency(agentDailyEarning);
+            document.getElementById('agentEarning').innerHTML = formatCurrency(agentWeeklyEarning);
+            document.getElementById('managerEarning').innerHTML = formatCurrency(managerWeeklyEarning);
         }
         
         function formatCurrency(amount) {
