@@ -123,6 +123,7 @@
             border: 2px solid #27ae60;
             border-radius: 15px;
             padding: 25px;
+            margin-bottom: 30px;
         }
         
         .results-title {
@@ -205,6 +206,40 @@
         
         .agent-card .result-label {
             color: rgba(255,255,255,0.9);
+        }
+        
+        .onboarding-section {
+            background: linear-gradient(135deg, #fff3e0, #fffaf0);
+            border: 2px solid #ff9800;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .onboarding-title {
+            text-align: center;
+            color: #ff9800;
+            font-size: 1.4em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .onboarding-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .onboarding-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #ff9800;
+        }
+        
+        .onboarding-card .result-value {
+            color: #ff9800;
         }
         
         .calculation-note {
@@ -338,6 +373,36 @@
                 <strong>Note:</strong> Calculations assume 5-day working week, 22 working days per month, and 260 working days per year. Each manager oversees 25 agents.
             </div>
         </div>
+
+        <div class="onboarding-section">
+            <div class="onboarding-title">🏢 Business Onboarding Growth Metrics</div>
+            
+            <div class="onboarding-grid">
+                <div class="onboarding-card">
+                    <span class="result-value" id="monthlyOnboarding">24K</span>
+                    <span class="result-label">Monthly Businesses Onboarded</span>
+                </div>
+                
+                <div class="onboarding-card">
+                    <span class="result-value" id="year1Onboarding">286K</span>
+                    <span class="result-label">Year 1 Total Businesses</span>
+                </div>
+                
+                <div class="onboarding-card">
+                    <span class="result-value" id="year2Onboarding">572K</span>
+                    <span class="result-label">Year 2 Total Businesses</span>
+                </div>
+                
+                <div class="onboarding-card">
+                    <span class="result-value" id="year3Onboarding">858K</span>
+                    <span class="result-label">Year 3 Total Businesses</span>
+                </div>
+            </div>
+            
+            <div class="calculation-note">
+                <strong>Growth Calculation:</strong> Based on total sales volume (each sale = 1 business onboarded). Growth rates help track market penetration and expansion potential over time.
+            </div>
+        </div>
     </div>
 
     <script>
@@ -404,6 +469,13 @@
             var totalDailyManagerCommissions = agents * dailyManagerCommissionPerAgent;
             var managerWeeklyEarning = (totalDailyManagerCommissions * 5) / numberOfManagers;
             
+            // Business onboarding calculations (each sale = 1 business onboarded)
+            var dailyBusinessOnboarding = agents * totalSalesPerAgent;
+            var monthlyBusinessOnboarding = dailyBusinessOnboarding * 22;
+            var year1BusinessOnboarding = dailyBusinessOnboarding * 260;
+            var year2BusinessOnboarding = year1BusinessOnboarding * 2;
+            var year3BusinessOnboarding = year1BusinessOnboarding * 3;
+            
             // Update display
             document.getElementById('dailyProfit').innerHTML = formatCurrency(dailyCompanyProfit);
             document.getElementById('weeklyProfit').innerHTML = formatCurrency(weeklyCompanyProfit);
@@ -413,6 +485,12 @@
             document.getElementById('profitPerSale').innerHTML = formatCurrency(avgProfitPerSale);
             document.getElementById('agentEarning').innerHTML = formatCurrency(agentWeeklyEarning);
             document.getElementById('managerEarning').innerHTML = formatCurrency(managerWeeklyEarning);
+            
+            // Update onboarding metrics
+            document.getElementById('monthlyOnboarding').innerHTML = formatNumber(monthlyBusinessOnboarding);
+            document.getElementById('year1Onboarding').innerHTML = formatNumber(year1BusinessOnboarding);
+            document.getElementById('year2Onboarding').innerHTML = formatNumber(year2BusinessOnboarding);
+            document.getElementById('year3Onboarding').innerHTML = formatNumber(year3BusinessOnboarding);
         }
         
         function formatCurrency(amount) {
