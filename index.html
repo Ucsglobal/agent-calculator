@@ -266,34 +266,50 @@
         <h1>💰 Agent Sales Profit Calculator</h1>
         
         <div class="preset-buttons">
-            <button class="preset-btn" onclick="setPreset(100, 10, 20, 50)">Small Scale (100 agents)</button>
-            <button class="preset-btn" onclick="setPreset(1000, 10, 20, 50)">Medium Scale (1K agents)</button>
-            <button class="preset-btn" onclick="setPreset(5000, 10, 20, 50)">Large Scale (5K agents)</button>
-            <button class="preset-btn" onclick="setPreset(14000, 10, 20, 50)">Full Scale (14K agents)</button>
+            <button class="preset-btn" onclick="setPreset(100, 10, 5, 50)">Small Scale (100 agents)</button>
+            <button class="preset-btn" onclick="setPreset(1000, 10, 5, 50)">Medium Scale (1K agents)</button>
+            <button class="preset-btn" onclick="setPreset(5000, 10, 5, 50)">Large Scale (5K agents)</button>
+            <button class="preset-btn" onclick="setPreset(14000, 10, 5, 50)">Full Scale (14K agents)</button>
         </div>
         
         <div class="input-section">
             <div class="input-group">
-                <label for="agents">Number of Agents</label>
+                <label for="agents">No. of Agents</label>
                 <input type="number" id="agents" value="100" min="1">
             </div>
             
-            <div class="input-group">
-                <label for="salesPerDay">Agent Sales/Day</label>
+            <div class="input-group" style="border-left-color: #27ae60;">
+                <label for="salesPerDay">Sales/ day</label>
                 <input type="number" id="salesPerDay" value="10" min="0" max="50" step="1">
+                <div class="helper-text">Actual sales made per agent</div>
+            </div>
+            
+            <div class="input-group" style="border-left-color: #9b59b6;">
+                <label for="nonSalesPerDay">Non-Sales/ day</label>
+                <input type="number" id="nonSalesPerDay" value="5" min="0" max="50" step="1">
+                <div class="helper-text">Data collections per agent</div>
             </div>
             
             <div class="input-group">
-                <label for="companyProfit">Company Profit %</label>
+                <label for="companyProfit">Profit %</label>
                 <input type="number" id="companyProfit" value="50" min="0" max="100" step="1">
                 <div class="helper-text">% of package price</div>
             </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+            <div class="input-group" style="border-left-color: #9b59b6;">
+                <label for="collectionFee">Non-Sale fee</label>
+                <input type="number" id="collectionFee" value="0.50" min="0.10" max="1.00" step="0.05">
+                <div class="helper-text">Fee paid for collecting business data (US$0.10 - US$1.00)</div>
+            </div>
             
-            <div class="input-group">
-                <label>Quick Mix Presets</label>
-                <button class="preset-btn" onclick="setSalesMix(10, 0, 0)" style="width: 100%; margin-bottom: 5px; font-size: 0.8em;">All $20</button>
-                <button class="preset-btn" onclick="setSalesMix(0, 10, 0)" style="width: 100%; margin-bottom: 5px; font-size: 0.8em;">All $50</button>
-                <button class="preset-btn" onclick="setSalesMix(3, 4, 3)" style="width: 100%; font-size: 0.8em;">Mixed</button>
+            <div class="input-group" style="border-left-color: #e74c3c;">
+                <label>Accounts handled</label>
+                <div style="background: white; padding: 10px; border-radius: 8px; border: 2px solid #e1e8ed;">
+                    <strong>Sales + Non-Sales: <span id="totalActivityCheck">15</span></strong>
+                </div>
+                <div class="helper-text">Total daily interactions per agent</div>
             </div>
         </div>
         
@@ -319,8 +335,8 @@
                 </div>
             </div>
             <div style="text-align: center; margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                <strong>Total Sales per Agent per Day: <span id="totalSalesCheck">10</span></strong>
-                <span id="salesMismatch" style="color: #e74c3c; margin-left: 10px; display: none;">⚠️ Mix doesn't match total sales!</span>
+                <strong>Sales Mix Total: <span id="salesMixCheck">10</span></strong>
+                <span id="salesMismatch" style="color: #e74c3c; margin-left: 10px; display: none;">⚠️ Mix doesn't match sales total!</span>
             </div>
         </div>
         
@@ -350,57 +366,79 @@
                 
                 <div class="result-card">
                     <span class="result-value" id="dailyProfit">$10K</span>
-                    <span class="result-label">Daily Company Profit</span>
+                    <span class="result-label">Daily Net Profit</span>
                 </div>
                 
                 <div class="result-card">
                     <span class="result-value" id="weeklyProfit">$50K</span>
-                    <span class="result-label">Weekly Company Profit</span>
+                    <span class="result-label">Weekly Net Profit</span>
                 </div>
                 
                 <div class="result-card">
                     <span class="result-value" id="monthlyProfit">$220K</span>
-                    <span class="result-label">Monthly Company Profit</span>
+                    <span class="result-label">Monthly Net Profit</span>
                 </div>
                 
                 <div class="result-card highlight-card">
                     <span class="result-value" id="annualProfit">$2.6M</span>
-                    <span class="result-label">Annual Company Profit</span>
+                    <span class="result-label">Annual Net Profit</span>
                 </div>
             </div>
             
             <div class="calculation-note">
-                <strong>Note:</strong> Calculations assume 5-day working week, 22 working days per month, and 260 working days per year. Each manager oversees 25 agents.
+                <strong>Note:</strong> Net profit includes sales revenue minus collection fee costs. Calculations assume 5-day working week, 22 working days per month, and 260 working days per year. Each manager oversees 25 agents.
             </div>
         </div>
 
         <div class="onboarding-section">
             <div class="onboarding-title">🏢 Business Onboarding Growth Metrics</div>
             
-            <div class="onboarding-grid">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
                 <div class="onboarding-card">
-                    <span class="result-value" id="monthlyOnboarding">24K</span>
+                    <span class="result-value" id="monthlyOnboarding">33K</span>
                     <span class="result-label">Monthly Businesses Onboarded</span>
                 </div>
                 
                 <div class="onboarding-card">
-                    <span class="result-value" id="year1Onboarding">286K</span>
+                    <span class="result-value" id="year1Onboarding">390K</span>
                     <span class="result-label">Year 1 Total Businesses</span>
                 </div>
                 
                 <div class="onboarding-card">
-                    <span class="result-value" id="year2Onboarding">572K</span>
+                    <span class="result-value" id="year2Onboarding">780K</span>
                     <span class="result-label">Year 2 Total Businesses</span>
                 </div>
                 
                 <div class="onboarding-card">
-                    <span class="result-value" id="year3Onboarding">858K</span>
+                    <span class="result-value" id="year3Onboarding">1.2M</span>
                     <span class="result-label">Year 3 Total Businesses</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                <div class="onboarding-card" style="border-left-color: #9b59b6; background: linear-gradient(135deg, #f3e5f5, #fce4ec);">
+                    <span class="result-value" id="monthlyCollections" style="color: #9b59b6;">11K</span>
+                    <span class="result-label">Monthly Data Collections</span>
+                </div>
+                
+                <div class="onboarding-card" style="border-left-color: #9b59b6; background: linear-gradient(135deg, #f3e5f5, #fce4ec);">
+                    <span class="result-value" id="collectionRevenue" style="color: #9b59b6;">$5.5K</span>
+                    <span class="result-label">Monthly Collection Costs</span>
+                </div>
+                
+                <div class="onboarding-card" style="border-left-color: #9b59b6; background: linear-gradient(135deg, #f3e5f5, #fce4ec);">
+                    <span class="result-value" id="annualCollectionRevenue" style="color: #9b59b6;">$66K</span>
+                    <span class="result-label">Annual Collection Costs</span>
+                </div>
+                
+                <div class="onboarding-card" style="border-left-color: #e74c3c; background: linear-gradient(135deg, #ffebee, #fce4ec);">
+                    <span class="result-value" id="collectionImpact" style="color: #e74c3c;">-2.8%</span>
+                    <span class="result-label">Profit Impact</span>
                 </div>
             </div>
             
             <div class="calculation-note">
-                <strong>Growth Calculation:</strong> Based on total sales volume (each sale = 1 business onboarded). Growth rates help track market penetration and expansion potential over time.
+                <strong>Cost Impact:</strong> Collection fees are treated as operational costs that reduce net profit. Business onboarding includes both sales and data collections for comprehensive database building.
             </div>
         </div>
     </div>
@@ -409,20 +447,26 @@
         function calculate() {
             var agents = Number(document.getElementById('agents').value) || 0;
             var salesPerDay = Number(document.getElementById('salesPerDay').value) || 0;
+            var nonSalesPerDay = Number(document.getElementById('nonSalesPerDay').value) || 0;
             var companyProfitPercent = Number(document.getElementById('companyProfit').value) || 0;
+            var collectionFee = Number(document.getElementById('collectionFee').value) || 0;
             
             // Get sales mix
             var sales20 = Number(document.getElementById('sales20').value) || 0;
             var sales50 = Number(document.getElementById('sales50').value) || 0;
             var sales100 = Number(document.getElementById('sales100').value) || 0;
             
-            // Update total sales check
-            var totalMixSales = sales20 + sales50 + sales100;
-            document.getElementById('totalSalesCheck').innerHTML = totalMixSales;
+            // Update activity check
+            var totalActivity = salesPerDay + nonSalesPerDay;
+            document.getElementById('totalActivityCheck').innerHTML = totalActivity;
+            
+            // Update sales mix check
+            var salesMixTotal = sales20 + sales50 + sales100;
+            document.getElementById('salesMixCheck').innerHTML = salesMixTotal;
             
             // Show/hide mismatch warning
             var mismatchElement = document.getElementById('salesMismatch');
-            if (totalMixSales !== salesPerDay) {
+            if (salesMixTotal !== salesPerDay) {
                 mismatchElement.style.display = 'inline';
             } else {
                 mismatchElement.style.display = 'none';
@@ -433,12 +477,12 @@
             var managerCommissions = { 20: 0.30, 50: 0.85, 100: 2.00 };
             var packagePrices = { 20: 20, 50: 50, 100: 100 };
             
-            // Calculate per-agent daily earnings
+            // Calculate per-agent daily earnings from sales
             var agentDailyEarning = (sales20 * agentCommissions[20]) + 
                                    (sales50 * agentCommissions[50]) + 
                                    (sales100 * agentCommissions[100]);
             
-            // Calculate daily revenue and profit per agent
+            // Calculate daily revenue and profit per agent from sales
             var dailyRevenuePerAgent = (sales20 * packagePrices[20]) + 
                                       (sales50 * packagePrices[50]) + 
                                       (sales100 * packagePrices[100]);
@@ -447,16 +491,21 @@
                                      (sales50 * packagePrices[50] * companyProfitPercent / 100) + 
                                      (sales100 * packagePrices[100] * companyProfitPercent / 100);
             
+            // Calculate collection costs per agent
+            var dailyCollectionCostPerAgent = nonSalesPerDay * collectionFee;
+            
+            // Calculate net profit per agent (sales profit minus collection costs)
+            var dailyNetProfitPerAgent = dailyProfitPerAgent - dailyCollectionCostPerAgent;
+            
             // Calculate weighted average profit per sale for display
-            var totalSalesPerAgent = sales20 + sales50 + sales100;
-            var avgProfitPerSale = totalSalesPerAgent > 0 ? dailyProfitPerAgent / totalSalesPerAgent : 0;
+            var avgProfitPerSale = salesPerDay > 0 ? dailyProfitPerAgent / salesPerDay : 0;
             
             // Calculate total company metrics
-            var totalWeeklySales = agents * totalSalesPerAgent * 5;
-            var dailyCompanyProfit = agents * dailyProfitPerAgent;
-            var weeklyCompanyProfit = dailyCompanyProfit * 5;
-            var monthlyCompanyProfit = dailyCompanyProfit * 22;
-            var annualCompanyProfit = dailyCompanyProfit * 260;
+            var totalWeeklySales = agents * salesPerDay * 5;
+            var dailyCompanyNetProfit = agents * dailyNetProfitPerAgent;
+            var weeklyCompanyNetProfit = dailyCompanyNetProfit * 5;
+            var monthlyCompanyNetProfit = dailyCompanyNetProfit * 22;
+            var annualCompanyNetProfit = dailyCompanyNetProfit * 260;
             
             // Agent weekly earnings
             var agentWeeklyEarning = agentDailyEarning * 5;
@@ -469,18 +518,28 @@
             var totalDailyManagerCommissions = agents * dailyManagerCommissionPerAgent;
             var managerWeeklyEarning = (totalDailyManagerCommissions * 5) / numberOfManagers;
             
-            // Business onboarding calculations (each sale = 1 business onboarded)
-            var dailyBusinessOnboarding = agents * totalSalesPerAgent;
+            // Business onboarding calculations (sales + data collections)
+            var dailyBusinessOnboarding = agents * (salesPerDay + nonSalesPerDay);
             var monthlyBusinessOnboarding = dailyBusinessOnboarding * 22;
             var year1BusinessOnboarding = dailyBusinessOnboarding * 260;
             var year2BusinessOnboarding = year1BusinessOnboarding * 2;
             var year3BusinessOnboarding = year1BusinessOnboarding * 3;
             
+            // Data collection calculations
+            var totalDailyCollections = agents * nonSalesPerDay;
+            var monthlyCollections = totalDailyCollections * 22;
+            var monthlyCollectionCosts = monthlyCollections * collectionFee;
+            var annualCollectionCosts = monthlyCollectionCosts * 12;
+            
+            // Calculate collection cost impact on profit
+            var grossAnnualProfit = agents * (dailyProfitPerAgent * 260);
+            var collectionImpactPercent = grossAnnualProfit > 0 ? (annualCollectionCosts / grossAnnualProfit) * 100 : 0;
+            
             // Update display
-            document.getElementById('dailyProfit').innerHTML = formatCurrency(dailyCompanyProfit);
-            document.getElementById('weeklyProfit').innerHTML = formatCurrency(weeklyCompanyProfit);
-            document.getElementById('monthlyProfit').innerHTML = formatCurrency(monthlyCompanyProfit);
-            document.getElementById('annualProfit').innerHTML = formatCurrency(annualCompanyProfit);
+            document.getElementById('dailyProfit').innerHTML = formatCurrency(dailyCompanyNetProfit);
+            document.getElementById('weeklyProfit').innerHTML = formatCurrency(weeklyCompanyNetProfit);
+            document.getElementById('monthlyProfit').innerHTML = formatCurrency(monthlyCompanyNetProfit);
+            document.getElementById('annualProfit').innerHTML = formatCurrency(annualCompanyNetProfit);
             document.getElementById('totalSales').innerHTML = formatNumber(totalWeeklySales);
             document.getElementById('profitPerSale').innerHTML = formatCurrency(avgProfitPerSale);
             document.getElementById('agentEarning').innerHTML = formatCurrency(agentWeeklyEarning);
@@ -491,6 +550,12 @@
             document.getElementById('year1Onboarding').innerHTML = formatNumber(year1BusinessOnboarding);
             document.getElementById('year2Onboarding').innerHTML = formatNumber(year2BusinessOnboarding);
             document.getElementById('year3Onboarding').innerHTML = formatNumber(year3BusinessOnboarding);
+            
+            // Update data collection metrics
+            document.getElementById('monthlyCollections').innerHTML = formatNumber(monthlyCollections);
+            document.getElementById('collectionRevenue').innerHTML = formatCurrency(monthlyCollectionCosts);
+            document.getElementById('annualCollectionRevenue').innerHTML = formatCurrency(annualCollectionCosts);
+            document.getElementById('collectionImpact').innerHTML = '-' + collectionImpactPercent.toFixed(1) + '%';
         }
         
         function formatCurrency(amount) {
@@ -529,18 +594,22 @@
             calculate();
         }
         
-        function setPreset(agents, sales, price, profit) {
+        function setPreset(agents, sales, nonSales, profit) {
             document.getElementById('agents').value = agents;
             document.getElementById('salesPerDay').value = sales;
+            document.getElementById('nonSalesPerDay').value = nonSales;
             document.getElementById('companyProfit').value = profit;
             
             // Set default mixed sales (3-4-3 pattern)
             setSalesMix(3, 4, 3);
         }
         
+        // Add event listeners
         document.getElementById('agents').addEventListener('input', calculate);
         document.getElementById('salesPerDay').addEventListener('input', calculate);
+        document.getElementById('nonSalesPerDay').addEventListener('input', calculate);
         document.getElementById('companyProfit').addEventListener('input', calculate);
+        document.getElementById('collectionFee').addEventListener('input', calculate);
         document.getElementById('sales20').addEventListener('input', calculate);
         document.getElementById('sales50').addEventListener('input', calculate);
         document.getElementById('sales100').addEventListener('input', calculate);
